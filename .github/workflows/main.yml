@@ -19,10 +19,13 @@ jobs:
         params: ""
         isReport: False
         poll: True
+    - shell: bash
+        run: |
+          cp wordcloud_cubadebate.png ${{ RUNNER.temp }}/nb-runner/
     - uses: actions/upload-artifact@master
       if: always()
       with:
-        name: output
+        name: cubadebate
         path: ${{ RUNNER.temp }}/nb-runner
       env:
         RUNNER: ${{ toJson(runner) }}
