@@ -19,9 +19,10 @@ jobs:
         params: ""
         isReport: False
         poll: True
-    - shell: bash
-        run: |
-          cp wordcloud_cubadebate.png ${{ RUNNER.temp }}/nb-runner/
+    - name: Copy WordCloud Imagen
+      shell: bash
+      run: |
+        cp wordcloud_cubadebate.png ${{ RUNNER.temp }}/nb-runner/
     - uses: actions/upload-artifact@master
       if: always()
       with:
