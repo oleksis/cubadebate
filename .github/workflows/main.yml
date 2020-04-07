@@ -15,8 +15,8 @@ jobs:
         SECRETS: ${{ toJson(secrets) }}
         GITHUB: ${{ toJson(github) }}
       with:
-        notebook: "PATHTONOTEBOOK.ipynb"
-        params: "PATHTOPARAMS.json"
+        notebook: "CUBADEBATE_SPACY.ipynb"
+        params: ""
         isReport: False
         poll: True
     - uses: actions/upload-artifact@master
