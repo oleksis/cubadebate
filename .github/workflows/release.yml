@@ -36,6 +36,10 @@ jobs:
     name: Create release-artifacts
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
+      - uses: actions/download-artifact@v1
+        with:
+          name: cubadebate
       - name: Upload the artifacts
         uses: skx/github-action-publish-binaries@master
         env:
