@@ -1,6 +1,6 @@
 # cubadebate
 Cubadebate Comenta
-[wordcloud_cubadebate](https://github.com/oleksis/cubadebate/releases/download/v1.0.0/wordcloud_cubadebate.png "Cubadebate WordCloud")
+<img src="https://github.com/oleksis/cubadebate/releases/download/v1.0.0/wordcloud_cubadebate.png" />
 
 
 ## Intro
