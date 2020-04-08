@@ -32,11 +32,11 @@ jobs:
         path: ${{ RUNNER.temp }}/nb-runner
       env:
         RUNNER: ${{ toJson(runner) }}
-    - name: Upload the artifacts
-      uses: skx/github-action-publish-binaries@master
+    - name: Create GitHub release
+      uses: Roang-zero1/github-upload-release-artifacts-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         args: 
-          - wordcloud_cubadebate.png
-          - capitolio.jpg
+        - wordcloud_cubadebate.png
+        - capitolio.jpg
