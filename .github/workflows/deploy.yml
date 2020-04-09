@@ -2,7 +2,7 @@ name: Build and Deploy
 
 on: 
   schedule:
-    - cron: '0 0,6,12 * * *'
+    - cron: '0 4,10,16 * * *'
 
 jobs:
   build:
@@ -23,10 +23,6 @@ jobs:
         params: ""
         isReport: False
         poll: True
-    - name: Copy WordCloud HTML
-      shell: bash
-      run: |
-        cp wordcloud_cubadebate.html ${{ RUNNER.temp }}/nb-runner/
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
