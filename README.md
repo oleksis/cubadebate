@@ -1,5 +1,5 @@
 # cubadebate
-![WordCloud Cubadebate Comenta](https://github.com/oleksis/cubadebate/releases/download/v1.0.1/wordcloud_cubadebate.png)
+![WordCloud Cubadebate Comenta](https://oleksis.github.io/cubadebate/wordcloud_cubadebate.png)
 
 ## Intro
 En este notebook crea una WordCloud o Nube de Palabras mediante el uso del Procesamiento del Lenguage Natural (nlp en inglés) sobre los comemtarios del sitio web [Cubadebate](http://www.cubadebate.cu/)
