@@ -1,0 +1,33 @@
+name: Build and Deploy
+
+on: 
+  schedule:
+    - cron: '5 * * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+    - uses: yaananth/run-notebook@v1
+      env:
+        RUNNER: ${{ toJson(runner) }}
+        SECRETS: ${{ toJson(secrets) }}
+        GITHUB: ${{ toJson(github) }}
+      with:
+        notebook: "CUBADEBATE_SPACY.ipynb"
+        params: ""
+        isReport: False
+        poll: True
+    - name: Copy WordCloud HTML
+      shell: bash
+      run: |
+        cp wordcloud_cubadebate.html ${{ RUNNER.temp }}/nb-runner/
+    - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: .
