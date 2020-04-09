@@ -25,7 +25,7 @@ jobs:
       shell: bash
       run: |
         cp wordcloud_cubadebate.html ${{ RUNNER.temp }}/nb-runner/
-    - name: Deploy 🚀
+    - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
