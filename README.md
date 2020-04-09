@@ -16,4 +16,4 @@ En este notebook crea una WordCloud o Nube de Palabras mediante el uso del Proce
 <a href="https://colab.research.google.com/github/oleksis/cubadebate/blob/master/CUBADEBATE_SPACY.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 ## Release
-[Cubadebate WordsCloud v1.1.1](https://github.com/oleksis/cubadebate/releases/tag/v1.1.1)
+[Cubadebate WordsCloud v1.1.2](https://github.com/oleksis/cubadebate/releases/tag/v1.1.2)
