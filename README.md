@@ -2,7 +2,7 @@
 ![WordCloud Cubadebate Comenta](https://oleksis.github.io/cubadebate/wordcloud_cubadebate.png)
 
 ## Intro
-En este notebook crea una WordCloud o Nube de Palabras mediante el uso del Procesamiento del Lenguage Natural (nlp en inglés) sobre los comemtarios del sitio web [Cubadebate](http://www.cubadebate.cu/)
+En este notebook crea una WordCloud o Nube de Palabras mediante el uso del Procesamiento del Lenguage Natural (nlp en inglés) sobre los comemtarios del sitio web [Cubadebate](http://www.cubadebate.cu/). También puede descargar los resultados en formato JSON en [comments_tfidf.json](https://github.com/oleksis/cubadebate/raw/gh-pages/comments_tfidf.json)
 
 ## Requerimientos
 * [Spacy](https://spacy.io/)
