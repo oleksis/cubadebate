@@ -13,10 +13,10 @@ jobs:
       uses: actions/setup-python@v1
     - name: Install Requirements
       run: pip install -r requirements.txt
+    - name: Install Spacy es_core_news_model
+      run: python -m spacy download es_core_news_sm
     - name: Run CUBADEBATE_SPACY.py
-      shell: bash
-      run: |
-        python CUBADEBATE_SPACY.py
+      run: python CUBADEBATE_SPACY.py
     - uses: actions/upload-artifact@master
       if: always()
       with:
