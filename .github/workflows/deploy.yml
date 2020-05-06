@@ -13,16 +13,12 @@ jobs:
         persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v1
-    - uses: yaananth/run-notebook@v1
-      env:
-        RUNNER: ${{ toJson(runner) }}
-        SECRETS: ${{ toJson(secrets) }}
-        GITHUB: ${{ toJson(github) }}
-      with:
-        notebook: "CUBADEBATE_SPACY.ipynb"
-        params: ""
-        isReport: False
-        poll: True
+    - name: Install Requirements
+        run: pip install -r requirements.txt
+    - name: Run CUBADEBATE_SPACY.py
+      shell: bash
+      run: |
+        python CUBADEBATE_SPACY.py
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
