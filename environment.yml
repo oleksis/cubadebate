@@ -7,24 +7,32 @@ dependencies:
   - backcall=0.1.0=py37_0
   - blas=1.0=mkl
   - bleach=3.1.0=py37_0
+  - bokeh=2.0.2=py37_0
   - ca-certificates=2020.1.1=0
   - certifi=2020.4.5.1=py37_0
   - cffi=1.14.0=py37h7a1dbc1_0
   - chardet=3.0.4=py37_1003
+  - cloudpickle=1.4.1=py_0
   - colorama=0.4.3=py_0
   - cryptography=2.8=py37h7a1dbc1_0
   - cycler=0.10.0=py37_0
   - cymem=1.31.2=py37he980bc4_0
   - cytoolz=0.9.0.1=py37hfa6e2cd_1
+  - dask=2.10.1=py_0
+  - dask-core=2.10.1=py_0
   - defusedxml=0.6.0=py_0
   - dill=0.2.9=py37_0
+  - distributed=2.10.0=py_0
   - freetype=2.9.1=ha9979f8_1
+  - fsspec=0.7.1=py_0
+  - heapdict=1.0.1=py_0
   - icc_rt=2019.0.0=h0cc432a_1
   - icu=58.2=ha66f8fd_1
   - idna=2.8=py37_0
   - importlib_metadata=1.5.0=py37_0
   - intel-openmp=2020.0=166
   - ipykernel=5.1.4=py37h39e3cac_0
+  - ipyparallel=6.2.4=py37_0
   - ipython=7.12.0=py37h5ca1d4c_0
   - ipython_genutils=0.2.0=py37_0
   - jedi=0.14.1=py37_0
@@ -36,6 +44,8 @@ dependencies:
   - kiwisolver=1.1.0=py37ha925a31_0
   - libpng=1.6.37=h2a8f88b_0
   - libsodium=1.0.16=h9d3ae62_0
+  - libtiff=4.1.0=h56a325e_0
+  - locket=0.2.0=py37_1
   - m2w64-gcc-libgfortran=5.3.0=6
   - m2w64-gcc-libs=5.3.0=7
   - m2w64-gcc-libs-core=5.3.0=7
@@ -57,16 +67,22 @@ dependencies:
   - notebook=6.0.3=py37_0
   - numpy=1.18.1=py37h93ca92e_0
   - numpy-base=1.18.1=py37hc3f5095_1
+  - olefile=0.46=py37_0
   - openssl=1.1.1g=he774522_0
+  - packaging=20.3=py_0
+  - pandas=1.0.3=py37h47e9c7a_0
   - pandoc=2.2.3.2=0
   - pandocfilters=1.4.2=py37_1
   - parso=0.5.2=py_0
+  - partd=1.1.0=py_0
   - pickleshare=0.7.5=py37_0
+  - pillow=7.1.2=py37hcc1f983_0
   - pip=20.0.2=py37_1
   - plac=0.9.6=py37_0
   - preshed=1.0.1=py37he025d50_0
   - prometheus_client=0.7.1=py_0
   - prompt_toolkit=3.0.3=py_0
+  - psutil=5.7.0=py37he774522_0
   - pycparser=2.19=py37_0
   - pygments=2.5.2=py_0
   - pyopenssl=19.1.0=py37_0
@@ -76,6 +92,7 @@ dependencies:
   - pysocks=1.7.1=py37_0
   - python=3.7.6=h60c2a47_2
   - python-dateutil=2.8.1=py_0
+  - pytz=2020.1=py_0
   - pywinpty=0.5.7=py37_0
   - qt=5.9.7=vc14h73c81de_0
   - regex=2018.07.11=py37hfa6e2cd_0
@@ -84,16 +101,20 @@ dependencies:
   - setuptools=45.2.0=py37_0
   - sip=4.19.8=py37h6538335_0
   - six=1.14.0=py37_0
+  - sortedcontainers=2.1.0=py37_0
   - spacy=2.0.12=py37h8300f20_0
   - sqlite=3.31.1=he774522_0
+  - tblib=1.6.0=py_0
   - termcolor=1.1.0=py37_1
   - terminado=0.8.3=py37_0
   - testpath=0.4.4=py_0
   - thinc=6.10.3=py37h8300f20_0
+  - tk=8.6.8=hfa6e2cd_0
   - toolz=0.10.0=py_0
   - tornado=6.0.3=py37he774522_3
   - tqdm=4.45.0=py_0
   - traitlets=4.3.3=py37_0
+  - typing_extensions=3.7.4.1=py37_0
   - ujson=2.0.3=py37ha925a31_0
   - urllib3=1.25.8=py37_0
   - vc=14.1=h0510ff6_4
@@ -105,8 +126,12 @@ dependencies:
   - wincertstore=0.2=py37_0
   - winpty=0.4.3=4
   - wrapt=1.10.11=py37hfa6e2cd_2
+  - xz=5.2.5=h62dcd97_0
+  - yaml=0.1.7=hc54c509_2
   - zeromq=4.3.1=h33f27b4_3
+  - zict=2.0.0=py_0
   - zlib=1.2.11=h62dcd97_3
+  - zstd=1.3.7=h508b16e_0
   - pip:
     - ansiwrap==0.8.4
     - appdirs==1.4.3
@@ -116,16 +141,17 @@ dependencies:
     - decorator==4.4.2
     - entrypoints==0.3
     - es-core-news-sm==2.0.0
+    - fastscript==0.1.4
     - importlib-metadata==1.6.0
     - ipython-genutils==0.2.0
     - jupyter-client==6.1.3
     - jupyter-core==4.6.3
     - nbclient==0.2.0
+    - nbdev==0.2.18
     - nbformat==5.0.6
     - nest-asyncio==1.3.2
     - papermill==2.1.1
     - pathspec==0.8.0
-    - pillow==7.1.2
     - pyrsistent==0.16.0
     - pywin32==227
     - pyyaml==5.3.1

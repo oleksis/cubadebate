@@ -3,6 +3,9 @@
 
 import time
 import requests
+import dask
+import dask.delayed as delayed
+import dask.bag as db
 
 
 CUBADEBATE_API = "http://www.cubadebate.cu/wp-json/wp/v2/"
@@ -11,6 +14,7 @@ COMMENTS_ENDPOINT = CUBADEBATE_API + "comments/"
 session = requests.Session()
 ConnectionError = requests.exceptions.ConnectionError
 
+@delayed
 def get_comments_json(page=1):
     params = {"page": str(page)}
     results = []
@@ -29,7 +33,7 @@ def get_comments_json(page=1):
     return results
         
 start = time.time()
-comments_list = get_comments_json()
+comments_list = list(*dask.compute(get_comments_json()))
 end = time.time()
 print(f'{len(comments_list)} Comments downloaded in {(end - start):.2f}s')
 #comments_list
@@ -38,22 +42,23 @@ print(f'{len(comments_list)} Comments downloaded in {(end - start):.2f}s')
 # In[2]:
 
 
-from concurrent.futures import ThreadPoolExecutor
+def get_comments(pages):
+    comments_delayed = (get_comments_json(page)
+                        for page in range(1, pages+1))
+                        
+    comments = db.from_delayed(comments_delayed).map(lambda d: d['content']['rendered'])
+
+    return comments
 
 NUM_PAGES=100
 
 start = time.time()
 
-with ThreadPoolExecutor() as executor:
-    results = executor.map(get_comments_json, range(1,NUM_PAGES+1))
-    comments_list = list(results)
-	
+#In Windows the Dask.Bag is multiprocessing by default chage to threads
+documents = get_comments(NUM_PAGES).compute(scheduler='threads') #type: List[str]
+
 end = time.time()
-    
-documents = [comment.get('content').get('rendered')
-          for comments in comments_list
-          for comment in comments]
-        
+
 print(f'{len(documents)} Comments downloaded in {(end - start):.2f}s')
 #documents
 
@@ -85,6 +90,7 @@ def get_text(markup):
     text = re.sub('\s+', ' ', text)
     return text.strip()
 
+@delayed
 def clean(doc):
     """Remove grave accents, stopwords, the punctuations and normalize the corpus."""
 
@@ -105,22 +111,23 @@ def clean(doc):
     tokens = [preprocess_token(word) for word in nlp(text)
               if is_token_allowed(word)]
     normalized = " ".join(word for word in tokens)
-    return normalized
+    return normalized.split()
 
-def get_document_normalized(doc):
-    """Return List[str] clean document"""
-    return clean(doc).split()
+def get_documents_normalized(documents):
+    """Return List[List[str]] clean document"""
+    results = [] #type: List[dask.Delayed]
+    
+    for document in documents:
+        results.append(clean(document))
+    
+    return results
 
-#Process documents using ThreadPoolExecutor
+#Process documents using Dask.delayed
 documents_normalized = [] #type: List[List[str]]
 
 start = time.time()
 
-with ThreadPoolExecutor() as executor:
-    results = executor.map(get_document_normalized, documents)
-    documents_normalized = list(results)
-
-#documents_normalized = [get_document_normalized(doc) for doc in documents]
+documents_normalized = list(*dask.compute(get_documents_normalized(documents)))
 
 end = time.time()
 
@@ -250,7 +257,6 @@ else:
 
 
 import numpy as np
-
 import os
 from PIL import Image
 from wordcloud import WordCloud
