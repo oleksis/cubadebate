@@ -1,3 +1,6 @@
 .vscode
 .ipynb_checkpoints
 .idea
+artifacts
+docs
+tests
