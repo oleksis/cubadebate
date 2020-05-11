@@ -16,6 +16,7 @@ import dask
 from dask import bag as db
 from dask.delayed import delayed, Delayed
 import numpy as np
+from pandas import DataFrame
 from PIL import Image
 import spacy
 from spacy.tokens import Token
@@ -23,7 +24,7 @@ from spacy.lang.es.stop_words import STOP_WORDS
 from wordcloud import WordCloud
 
 # Annotations
-CommentList = List[Optional[Dict[str, Any]]]
+ElementList = List[Optional[Dict[str, Any]]]
 Document = str
 DocumentList = List[Document]
 DocumentNormalizedList = List[DocumentList]
@@ -34,26 +35,27 @@ TFIDF_List = List[TFIDF]
 
 CUBADEBATE_API = "http://www.cubadebate.cu/wp-json/wp/v2/"
 COMMENTS_ENDPOINT = CUBADEBATE_API + "comments/"
+SEARCH_ENDPOINT = CUBADEBATE_API + "search/"
 
 session = requests.Session()
 ConnectionErrorRequests = requests.exceptions.ConnectionError
 
 
 @delayed
-def get_comments_json(page: int = 1) -> CommentList:
-    """Get JSON of comments from endpoint API Wordpress v2
+def get_elements_json(url: str, **kwargs) -> ElementList:
+    """Get JSON of list elements from endpoint API Wordpress v2
 
-    RETURNS (CommentList): Delayed Response List of comments in JSON format
+    RETURNS (ElementList): Delayed Response List of elements in JSON format
     to compute for Dask.Bag
     """
-    params = {"page": str(page)}
+    params = {"page": '1'}
+    params.update(kwargs)
     results = []
 
     try:
         with session:
             time.sleep(1)
-            resp = session.get(COMMENTS_ENDPOINT,
-                               params=params)
+            resp = session.get(url, params=params)
             if resp.status_code == 200:
                 results = resp.json()
                 return results
@@ -64,13 +66,23 @@ def get_comments_json(page: int = 1) -> CommentList:
 
 def get_comments(pages: int) -> List[str]:
     """Get List of comments per page"""
-    comments_delayed = (get_comments_json(page)
+    comments_delayed = (get_elements_json(url=COMMENTS_ENDPOINT, page=str(page))
                         for page in range(1, pages + 1))
 
     comments_bag = db.from_delayed(comments_delayed).map(lambda d: d['content']['rendered'])
     # In Windows the Dask.Bag is multiprocessing by default, change to threads
     comments: List[str] = comments_bag.compute(scheduler='threads')
     return comments
+
+
+def get_searches(words: List[str]) -> List[Dict[str, Any]]:
+    """Get List of searches one page"""
+    search_delayed = (get_elements_json(url=SEARCH_ENDPOINT, search=word)
+                      for word in words)
+
+    searchs_bag = db.from_delayed(search_delayed)
+    searchs = searchs_bag.compute(scheduler='threads')
+    return searchs
 
 
 _start = time.time()
@@ -204,11 +216,13 @@ def idf_dict(documents: DocumentNormalizedList) -> IDF:
 
 
 def comments_tfidf(documents: DocumentNormalizedList) -> TFIDF_List:
+    """TF-IDF of all Documents Normalized"""
     tfidf_comments = []
 
     idf_comments = idf_dict(documents)
 
     def compute_tfidf_comment(document: DocumentList) -> TFIDF:
+        """Compute TF-IDF for a Document"""
         tfidf_comment = dict()
 
         tf_comment = comment_tf(document)
@@ -227,7 +241,6 @@ def comments_tfidf(documents: DocumentNormalizedList) -> TFIDF_List:
 tfidf_list = comments_tfidf(documents_normalized)
 # tfidf_list
 print('TF-IDF comments list')
-
 
 # Cell
 unordered_tfidf: Dict[str, float] = dict()
@@ -250,7 +263,6 @@ ordered_comments_tfidf = OrderedDict(sort_tfidf(unordered_tfidf))
 with open('comments_tfidf.json', 'w') as file_json:
     json.dump(ordered_comments_tfidf, file_json)
 print('TF-IDF ordered saved to comments_tfidf.json')
-
 
 # Cell
 # Capitolio Habana
@@ -297,18 +309,56 @@ wordcloud = WordCloud(
     stopwords=STOP_WORDS).generate_from_frequencies(ordered_comments_tfidf)
 # Save to file
 wordcloud.to_file(IMG_WORDCLOUD)
-print('WordCloud Cubadebate image saved.')
+print('WordCloud Cubadebate image saved.\n')
+
 
 # Cell
-with open(IMG_WORDCLOUD, 'rb') as file_img:
-    data = base64.b64encode(file_img.read()).decode('utf-8')
+def export_image2html(image_name: str) -> None:
+    """Export a image to html file"""
+    with open(image_name, 'rb') as file_img:
+        data = base64.b64encode(file_img.read()).decode('utf-8')
 
-img_str = '''
-<img width="100%" height="100%" 
-src="data:image/png;base64,{}" />
-'''.format(data)
+    img_str = '''
+    <img width="100%" height="100%" 
+    src="data:image/png;base64,{}" />
+    '''.format(data)
 
-with open('wordcloud_cubadebate.html', 'w') as _html:
-    _html.write(img_str)
+    with open('wordcloud_cubadebate.html', 'w') as _html:
+        _html.write(img_str)
 
-print('Exported image to html.')
+
+# export_image2html(IMG_WORDCLOUD)
+# print('Exported image to html.')
+
+# Cell
+# Get Words (Tokens) with most TF-IDF
+df = DataFrame.from_dict(data=ordered_comments_tfidf, dtype=int,
+                         orient='index', columns=['TF-IDF']).\
+    reset_index().rename(index=str, columns={'index': 'Word'})
+rows, columns = df.shape
+print(f'Panda DataFrame shape:({rows}, {columns})')
+
+df_gb = df.groupby(['TF-IDF'], sort=False).first().reset_index()
+rows, columns = df_gb.shape
+print(f'GroupBy DataFrame shape:({rows}, {columns})\n')
+print(df_gb)
+
+words_token = [word[1] for word in df_gb.values]
+search_list = get_searches(words_token)
+searches_results = []
+search_id = set()
+# Get first search per_page (default=10)
+for idx in range(0, len(search_list), 10):
+    search = search_list[idx]
+    if not search.get('id') in search_id:
+        search_id.add(search.get('id'))
+        searches_results.append(search)
+
+if len(searches_results) > 0:
+    with open('cubacomenta.html', 'w') as file:
+        text_link = ''
+        for search in searches_results:
+            text_link += f"<a href='{search.get('url')}'>{search.get('title')}</a><br />"
+        file.write(text_link)
+
+    print('\nSaved searches results to cubacomenta.html.\n')
