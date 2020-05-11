@@ -5,12 +5,14 @@
 En este notebook crea una WordCloud o Nube de Palabras mediante el uso del Procesamiento del Lenguage Natural (nlp en inglés) sobre los comemtarios del sitio web [Cubadebate](http://www.cubadebate.cu/).
 
 ## Requerimientos
+* [Dask](https://dask.org/)
+* [Requests](https://requests.readthedocs.io/en/master/)
 * [Spacy](https://spacy.io/)
 * [Wordcloud](http://amueller.github.io/word_cloud/)
 * [Numpy](https://numpy.org)
+* [Pandas](https://pandas.pydata.org/)
 * [Matplotlib](https://matplotlib.org/)
-* [Requests](https://requests.readthedocs.io/en/master/)
-* [Papermill](https://papermill.readthedocs.io/en/latest/)
+
 
 ## GitHub Actions
 

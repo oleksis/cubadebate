@@ -71,7 +71,8 @@ def get_comments(pages: int) -> List[str]:
 
     comments_bag = db.from_delayed(comments_delayed).map(lambda d: d['content']['rendered'])
     # In Windows the Dask.Bag is multiprocessing by default, change to threads
-    comments: List[str] = comments_bag.compute(scheduler='threads')
+    with dask.config.set(scheduler='threads'):
+        comments: List[str] = comments_bag.compute()
     return comments
 
 
@@ -80,9 +81,10 @@ def get_searches(words: List[str]) -> List[Dict[str, Any]]:
     search_delayed = (get_elements_json(url=SEARCH_ENDPOINT, search=word)
                       for word in words)
 
-    searchs_bag = db.from_delayed(search_delayed)
-    searchs = searchs_bag.compute(scheduler='threads')
-    return searchs
+    searches_bag = db.from_delayed(search_delayed)
+    with dask.config.set(scheduler='threads'):
+        searches = searches_bag.compute()
+    return searches
 
 
 _start = time.time()
@@ -163,7 +165,9 @@ def get_documents_delayed(documents: DocumentList) -> List[Delayed]:
 
 def get_documents_normalized(documents: DocumentList) -> DocumentNormalizedList:
     """Return DocumentNormalizedList clean document"""
-    return list(*dask.compute(get_documents_delayed(documents)))
+    with dask.config.set(scheduler='threads'):
+        docs_normalized = list(*dask.compute(get_documents_delayed(documents)))
+    return docs_normalized
 
 
 # Process corpus using Dask.delayed
