@@ -337,7 +337,7 @@ def export_image2html(image_name: str) -> None:
 # Cell
 # Get Words (Tokens) with most TF-IDF
 df = DataFrame.from_dict(data=ordered_comments_tfidf, dtype=int,
-                         orient='index', columns=['TF-IDF']).\
+                         orient='index', columns=['TF-IDF']). \
     reset_index().rename(index=str, columns={'index': 'Word'})
 rows, columns = df.shape
 print(f'Panda DataFrame shape:({rows}, {columns})')
@@ -347,22 +347,30 @@ rows, columns = df_gb.shape
 print(f'GroupBy DataFrame shape:({rows}, {columns})\n')
 print(df_gb)
 
-words_token = [word[1] for word in df_gb.values]
-search_list = get_searches(words_token)
-searches_results = []
-search_id = set()
-# Get first search per_page (default=10)
-for idx in range(0, len(search_list), 10):
-    search = search_list[idx]
-    if not search.get('id') in search_id:
-        search_id.add(search.get('id'))
-        searches_results.append(search)
+words_token = list(df_gb['Word'].values)
+searches_dict = dict()
 
-if len(searches_results) > 0:
+for w_token in words_token:
+    search_list = get_searches([w_token])
+    # Get first searched result
+    if len(search_list) > 0:
+        searches_dict[w_token] = search_list[0]
+
+# DataFrame First Search Posts
+if len(searches_dict) > 0:
+    searches_df = DataFrame.from_dict(data=searches_dict, orient='index', ) \
+        .drop(columns=['type', 'subtype', '_links'])
+
+    print('\nTop Word Token and Post\n')
+    print(searches_df)
+    searches_df.to_json(os.path.join(_dir, 'top_word_post.json'))
+    print('\nSaved top_word_post.json\n')
+
     with open('cubacomenta.html', 'w') as file:
-        text_link = ''
-        for search in searches_results:
-            text_link += f"<a href='{search.get('url')}'>{search.get('title')}</a><br />"
+        text_link = "<ul>"
+        for _, _title, _url in searches_df.values:
+            text_link += f"<li><a href='{_url}'>{_title}</a></li>"
+        text_link += "</ul>"
         file.write(text_link)
 
-    print('\nSaved searches results to cubacomenta.html.\n')
+    print('Saved searches results to cubacomenta.html.\n')
