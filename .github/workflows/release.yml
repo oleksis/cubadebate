@@ -27,6 +27,6 @@ jobs:
     - name: Create GitHub release
       uses: Roang-zero1/github-upload-release-artifacts-action@master
       with:
-        args: comments_tfidf.json wordcloud_cubadebate.html wordcloud_cubadebate.png capitolio.jpg
+        args: comments_tfidf.json top_word_post.json wordcloud_cubadebate.png capitolio.jpg
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
