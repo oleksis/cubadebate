@@ -8,6 +8,7 @@ import json
 import math
 import os
 import re
+from string import Template
 import time
 from typing import List, Optional, Dict, Tuple, Iterable, Any
 
@@ -366,11 +367,15 @@ if len(searches_dict) > 0:
     searches_df.to_json(os.path.join(_dir, 'top_word_post.json'))
     print('\nSaved top_word_post.json\n')
 
-    with open('cubacomenta.html', 'w') as file:
+    with open('index.html', 'w') as f_index, open('index.tpl', 'r') as file:
+        tpl = file.read()
+        index_template = Template(tpl)
+
         text_link = "<ul>"
         for _, _title, _url in searches_df.values:
             text_link += f"<li><a href='{_url}'>{_title}</a></li>"
         text_link += "</ul>"
-        file.write(text_link)
+        # Create index.html from index.tpl
+        f_index.write(index_template.substitute(CUBADEBATE_LINKS=text_link))
 
-    print('Saved searches results to cubacomenta.html.\n')
+    print('Rewrite index.html.\n')
