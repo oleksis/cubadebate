@@ -8,7 +8,9 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v1
     - name: Install Requirements
@@ -30,3 +32,13 @@ jobs:
         args: comments_tfidf.json top_word_post.json wordcloud_cubadebate.png capitolio.jpg
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Commit chages
+      run: |
+        git commit -am "Deploy to gh-pages"
+        git push -f origin gh-pages
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: .
