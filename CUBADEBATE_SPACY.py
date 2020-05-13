@@ -367,10 +367,10 @@ if len(searches_dict) > 0:
     searches_df.to_json(os.path.join(_dir, 'top_word_post.json'))
     print('\nSaved top_word_post.json\n')
 
-    with open('index.html', 'w') as f_index, open('index.tpl', 'r') as file:
+    with open('index.html', 'w', encoding='utf-8') as f_index, open('index.tpl', 'r') as file:
         tpl = file.read()
         index_template = Template(tpl)
-
+        
         text_link = "<ul>"
         for _, _title, _url in searches_df.values:
             text_link += f"<li><a href='{_url}'>{_title}</a></li>"
