@@ -18,6 +18,7 @@ jobs:
         git checkout gh-pages 
         git reset --hard 7d75f8bc
         git rebase master
+        git push
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
