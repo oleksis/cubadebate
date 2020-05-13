@@ -13,6 +13,8 @@ jobs:
         persist-credentials: false
     - name: Reset Refresh GH-PAGES
       run: |
+        git config --global oleksis.fraga@gmail.com "you@example.com"
+        git config --global user.name "oleksis"
         git checkout gh-pages 
         git reset --hard 7d75f8bc
         git push -f origin gh-pages

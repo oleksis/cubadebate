@@ -34,6 +34,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Commit chages
       run: |
+        git config --global oleksis.fraga@gmail.com "you@example.com"
+        git config --global user.name "oleksis"
         git commit -am "Deploy to gh-pages"
         git push -f origin gh-pages
     - name: Deploy
