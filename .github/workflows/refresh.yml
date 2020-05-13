@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      with:
-        persist-credentials: false
     - name: Reset Refresh GH-PAGES
       run: |
         git config --global user.name "oleksis"
