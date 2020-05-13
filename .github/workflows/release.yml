@@ -30,12 +30,12 @@ jobs:
         args: comments_tfidf.json top_word_post.json wordcloud_cubadebate.png capitolio.jpg
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Commit chages
+    - name: Commit chages to gh-pages
       run: |
         git config --global user.name "oleksis"
         git config --global user.email "oleksis.fraga@gmail.com"
         git commit -am "Deploy to gh-pages"
-        git push -f origin HEAD:master
+        git push -f origin HEAD:gh-pages
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
