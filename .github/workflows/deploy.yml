@@ -24,7 +24,7 @@ jobs:
         git config --global user.name "oleksis"
         git config --global user.email "oleksis.fraga@gmail.com"
         git commit -am "Deploy to gh-pages"
-        git push
+        git push -f origin HEAD:master
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
