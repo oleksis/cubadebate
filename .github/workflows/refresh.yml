@@ -1,0 +1,27 @@
+name: Reset and Refresh GH-PAGES
+
+on: 
+  schedule:
+    - cron: '0 0 10 * *'  # Runs every month day 10
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    with:
+      persist-credentials: false
+    - name: Reset Refresh GH-PAGES
+      run: |
+        git checkout gh-pages 
+        git reset --hard 7d75f8bc
+        git push -f origin gh-pages
+        git rebase master
+        git push -f origin gh-pages
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: .
+
