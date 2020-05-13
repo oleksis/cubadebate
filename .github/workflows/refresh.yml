@@ -13,13 +13,11 @@ jobs:
         persist-credentials: false
     - name: Reset Refresh GH-PAGES
       run: |
-        git config --global oleksis.fraga@gmail.com "you@example.com"
         git config --global user.name "oleksis"
+        git config --global user.email "oleksis.fraga@gmail.com"
         git checkout gh-pages 
         git reset --hard 7d75f8bc
-        git push -f origin gh-pages
         git rebase master
-        git push -f origin gh-pages
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:

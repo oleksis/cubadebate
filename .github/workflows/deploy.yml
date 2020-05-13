@@ -21,10 +21,9 @@ jobs:
       run: python CUBADEBATE_SPACY.py
     - name: Commit chages
       run: |
-        git config --global oleksis.fraga@gmail.com "you@example.com"
         git config --global user.name "oleksis"
+        git config --global user.email "oleksis.fraga@gmail.com"
         git commit -am "Deploy to gh-pages"
-        git push -f origin gh-pages
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
