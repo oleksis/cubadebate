@@ -108,6 +108,7 @@ print(f'{len(corpus)} Comments downloaded in {(_end - _start):.2f}s')
 # Cell
 # Load model
 nlp = spacy.load('es_core_news_sm')
+bow_lemma_token = dict()
 
 
 def remplace_accents(text: str) -> str:
@@ -130,28 +131,34 @@ def get_text(markup: str) -> str:
     return text.strip()
 
 
+def preprocess_token(token: Token) -> str:
+    """Remove grave accents and return lemmatized token lower case"""
+    result = remplace_accents(token.lemma_.strip().lower())
+    return result
+
+
+def is_token_allowed(token: Token) -> bool:
+    """No Stop words, No Punctuations or len token >= 3"""
+    if (not token or not token.string.strip() or
+            token.is_stop or token.is_punct or len(token) < 3):
+        return False
+    return True
+
+
 @delayed
 def clean(doc: str) -> List[str]:
     """Remove grave accents, stopwords, the punctuations and normalize the corpus."""
-
-    def is_token_allowed(token: Token) -> bool:
-        """No Stop words, No Punctuations or len token >= 3"""
-        if (not token or not token.string.strip() or
-                token.is_stop or token.is_punct or len(token) < 3):
-            return False
-        return True
-
-    def preprocess_token(token: Token) -> str:
-        """Remove grave accents and return lemmatized token lower case"""
-        result = remplace_accents(token.lemma_.strip().lower())
-        return result
-
     text = get_text(doc)
     text = text.lower()
-    tokens = [preprocess_token(token) for token in nlp(text)
-              if is_token_allowed(token)]
-    normalized = " ".join(word for word in tokens)
-    return normalized.split()
+    tokens = []
+
+    for token in nlp(text):
+        if is_token_allowed(token):
+            word_lemma = preprocess_token(token)
+            bow_lemma_token[word_lemma] = token
+            tokens.append(word_lemma)
+
+    return tokens
 
 
 def get_documents_delayed(documents: DocumentList) -> List[Delayed]:
@@ -264,9 +271,17 @@ def sort_tfidf(tfidf_unordered) -> Iterable[Tuple[Any, Any]]:
 
 # unordered_tfidf
 ordered_comments_tfidf = OrderedDict(sort_tfidf(unordered_tfidf))
+
+# WordCloud with word_token
+token_comments_tfidf = dict()
+
+for lemma_, value in ordered_comments_tfidf.items():
+    _token = str(bow_lemma_token[lemma_])
+    token_comments_tfidf[_token] = value
+
 # Save to JSON file
 with open('comments_tfidf.json', 'w') as file_json:
-    json.dump(ordered_comments_tfidf, file_json)
+    json.dump(token_comments_tfidf, file_json)
 print('TF-IDF ordered saved to comments_tfidf.json')
 
 # Cell
@@ -311,7 +326,7 @@ wordcloud = WordCloud(
     mask=_mask,
     contour_width=1,
     contour_color='steelblue',
-    stopwords=STOP_WORDS).generate_from_frequencies(ordered_comments_tfidf)
+    stopwords=STOP_WORDS).generate_from_frequencies(token_comments_tfidf)
 # Save to file
 wordcloud.to_file(IMG_WORDCLOUD)
 print('WordCloud Cubadebate image saved.\n')
@@ -337,7 +352,7 @@ def export_image2html(image_name: str) -> None:
 
 # Cell
 # Get Words (Tokens) with most TF-IDF
-df = DataFrame.from_dict(data=ordered_comments_tfidf, dtype=int,
+df = DataFrame.from_dict(data=token_comments_tfidf, dtype=int,
                          orient='index', columns=['TF-IDF']). \
     reset_index().rename(index=str, columns={'index': 'Word'})
 rows, columns = df.shape
