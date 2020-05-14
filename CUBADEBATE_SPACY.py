@@ -365,12 +365,16 @@ print(df_gb)
 
 words_token = list(df_gb['Word'].values)
 searches_dict = dict()
+searches_ids = set()
 
 for w_token in words_token:
     search_list = get_searches([w_token])
     # Get first searched result
     if len(search_list) > 0:
-        searches_dict[w_token] = search_list[0]
+        search_id = search_list[0]['id']
+        if not search_id in searches_ids:
+            searches_ids.add(search_id)
+            searches_dict[w_token] = search_list[0]
 
 # DataFrame First Search Posts
 if len(searches_dict) > 0:
