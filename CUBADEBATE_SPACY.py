@@ -380,19 +380,23 @@ for w_token in words_token:
 if len(searches_dict) > 0:
     searches_df = DataFrame.from_dict(data=searches_dict, orient='index', ) \
         .drop(columns=['type', 'subtype', '_links'])
+    
+    df_dates = searches_df['url'].str.extract('(?P<date>\d{4}/\d{2}/\d{2})')
+
+    searches_by_dates = searches_df.join(df_dates).sort_values(by='date', ascending=False)
 
     print('\nTop Word Token and Post\n')
-    print(searches_df)
-    searches_df.to_json(os.path.join(_dir, 'top_word_post.json'))
+    print(searches_by_dates)
+    searches_by_dates.to_json(os.path.join(_dir, 'top_word_post.json'))
     print('\nSaved top_word_post.json\n')
 
     with open('index.html', 'w', encoding='utf-8') as f_index, open('index.tpl', 'r') as file:
         tpl = file.read()
         index_template = Template(tpl)
         
-        text_link = "<ul>"
-        for _, _title, _url in searches_df.values:
-            text_link += f"<li><a href='{_url}'>{_title}</a></li>"
+        text_link = "<ul>\n"
+        for _title, _url in searches_by_dates[['title', 'url']].values:
+            text_link += f"\t<li><a href='{_url}'>{_title}</a></li>\n"
         text_link += "</ul>"
         # Create index.html from index.tpl
         f_index.write(index_template.substitute(CUBADEBATE_LINKS=text_link))
