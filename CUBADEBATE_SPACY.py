@@ -395,8 +395,8 @@ if len(searches_dict) > 0:
         index_template = Template(tpl)
         
         text_link = "<ul>\n"
-        for _title, _url in searches_by_dates[['title', 'url']].values:
-            text_link += f"\t<li><a href='{_url}'>{_title}</a></li>\n"
+        for _index, _title, _url in searches_by_dates.reset_index()[['index', 'title', 'url']].values:
+            text_link += f"\t<li><a href='{_url}' rel='external' data-token='{_index}'>{_title}</a></li>\n"
         text_link += "</ul>"
         # Create index.html from index.tpl
         f_index.write(index_template.substitute(CUBADEBATE_LINKS=text_link))

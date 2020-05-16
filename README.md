@@ -36,4 +36,4 @@ Como resultado se obtiene cada cierta hora en el día la imagen **[wordcloud_cub
 <a href="https://colab.research.google.com/github/oleksis/cubadebate/blob/master/CUBADEBATE_SPACY.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 ## Release
-[Cubadebate WordsCloud v1.2.10](https://github.com/oleksis/cubadebate/releases/tag/v1.2.10)
+[Cubadebate WordsCloud v1.2.11](https://github.com/oleksis/cubadebate/releases/tag/v1.2.11)
