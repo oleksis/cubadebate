@@ -33,7 +33,29 @@ Como resultado se obtiene cada cierta hora en el día la imagen **[wordcloud_cub
 
 
 ## Uso
-<a href="https://colab.research.google.com/github/oleksis/cubadebate/blob/master/CUBADEBATE_SPACY.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+### Open in Binder
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/oleksis/cubadebate/master?filepath=CUBADEBATE_SPACY.ipynb)
+
+
+### Open in Colab
+For use in Google Colab you should be install the next packages, add cell python code first and then go to **Restart the runtime**:
+```python
+!pip install dask
+!pip install wordcloud
+!pip install spacy
+!python -m spacy download es_core_news_sm
+
+from IPython.display import clear_output
+clear_output()
+print('Dask installed.')
+print('WordCloud installed.')
+print('Spacy es_core_news_model installed.\nRestart the runtime!')
+
+```
+[![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/oleksis/cubadebate/blob/master/CUBADEBATE_SPACY.ipynb)
+
+
 
 ## Release
-[Cubadebate WordsCloud v1.2.11](https://github.com/oleksis/cubadebate/releases/tag/v1.2.11)
+[Cubadebate WordsCloud v1.2.12](https://github.com/oleksis/cubadebate/releases/tag/v1.2.12)
