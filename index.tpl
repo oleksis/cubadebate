@@ -19,7 +19,7 @@
 {"headline":"cubadebate","@type":"WebSite","url":"https://oleksis.github.io/cubadebate/","name":"cubadebate","description":"Cubadebate Comenta","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
-    <link rel="stylesheet" href="/cubadebate/assets/css/style.css?v=c1f05cba043f9afaa6ff174b7f277a747347b204">
+    <link rel="stylesheet" href="https://oleksis.github.io/cubadebate/assets/css/style.css?v=c1f05cba043f9afaa6ff174b7f277a747347b204">
   </head>
   <body>
     <div class="container-lg px-3 my-5 markdown-body">
