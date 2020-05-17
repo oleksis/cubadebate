@@ -1,0 +1,6 @@
+#!/bin/bash
+set -ex
+# Install Spacy es_core_news_model
+python -m spacy download es_core_news_sm
+
+
