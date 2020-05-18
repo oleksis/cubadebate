@@ -113,7 +113,7 @@ print(f"{len(corpus)} Comments downloaded in {(_end - _start):.2f}s")
 # Cell
 # Load model
 nlp = spacy.load("es_core_news_sm")
-bow_lemma_token = dict()
+bow_lemma_token: Dict[str, Token] = dict()
 
 
 def remplace_accents(text: str) -> str:
