@@ -32,7 +32,7 @@
 $CUBADEBATE_LINKS
 
 <h2 id="word-cloud">Word Cloud (Nube de Palabras)</h2>
-<p><img src="https://oleksis.github.io/cubadebate/wordcloud_cubadebate.png" alt="WordCloud Cuba Comenta" /></p>
+<p><img src="wordcloud_cubadebate.png" alt="WordCloud Cuba Comenta" /></p>
 
       <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
         This site is open source. <a href="https://github.com/oleksis/cubadebate/edit/gh-pages/index.html">Improve this page</a>.
