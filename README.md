@@ -48,9 +48,9 @@ For use in Google Colab you should be install the next packages, add cell python
 
 from IPython.display import clear_output
 clear_output()
-print('Dask installed.')
-print('WordCloud installed.')
-print('Spacy es_core_news_model installed.\nRestart the runtime!')
+print("Dask installed.")
+print("WordCloud installed.")
+print("Spacy es_core_news_model installed.\nRestart the runtime!")
 
 ```
 [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/oleksis/cubadebate/blob/master/CUBADEBATE_SPACY.ipynb)
@@ -58,4 +58,4 @@ print('Spacy es_core_news_model installed.\nRestart the runtime!')
 
 
 ## Release
-[Cubadebate WordsCloud v1.2.12](https://github.com/oleksis/cubadebate/releases/tag/v1.2.12)
+[Cubadebate WordsCloud v1.2.13](https://github.com/oleksis/cubadebate/releases/tag/v1.2.13)
