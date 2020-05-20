@@ -2,6 +2,8 @@ name: Execute Notebook - Release Artifacts - Deploy
 
 on: 
   release:
+    branches:
+      - master
     types: [created]
 
 jobs:

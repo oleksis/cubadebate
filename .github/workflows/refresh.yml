@@ -2,6 +2,8 @@ name: Reset and Refresh GH-PAGES
 
 on: 
   schedule:
+    branches:
+      - master
     - cron: '0 4 10 * *'  # Runs every month day 10 UTC-4 like deploy
 
 jobs:
