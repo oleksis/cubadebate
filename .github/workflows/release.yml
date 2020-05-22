@@ -4,7 +4,6 @@ on:
   release:
     branches:
       - master
-    types: [created]
 
 jobs:
   generate:
