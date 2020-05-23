@@ -268,10 +268,7 @@ unordered_tfidf: Dict[str, float] = dict()
 
 for tfidf in tfidf_list:
     for w, value in tfidf.items():
-        if w in unordered_tfidf:
-            unordered_tfidf[w] += value
-        else:
-            unordered_tfidf[w] = value
+        unordered_tfidf[w] = unordered_tfidf.get(w, 0) + value
 
 
 def sort_tfidf(tfidf_unordered) -> Iterable[Tuple[Any, Any]]:
