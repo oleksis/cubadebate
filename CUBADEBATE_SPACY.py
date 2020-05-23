@@ -290,7 +290,7 @@ for lemma_, value in ordered_comments_tfidf.items():
 
 # Save to JSON file
 with open("comments_tfidf.json", "w") as file_json:
-    json.dump(token_comments_tfidf, file_json)
+    json.dump(ordered_comments_tfidf, file_json)
 print("TF-IDF ordered saved to comments_tfidf.json")
 
 # Cell
@@ -363,10 +363,10 @@ def export_image2html(image_name: str) -> None:
 # print("Exported image to html.")
 
 # Cell
-# Get Words (Tokens) with most TF-IDF
+# Get Words (Lemma) with most TF-IDF
 df = (
     DataFrame.from_dict(
-        data=token_comments_tfidf, dtype=int, orient="index", columns=["TF-IDF"]
+        data=ordered_comments_tfidf, dtype=int, orient="index", columns=["TF-IDF"]
     )
     .reset_index()
     .rename(index=str, columns={"index": "Word"})
