@@ -2,7 +2,7 @@ name: Reset and Refresh GH-PAGES
 
 on: 
   schedule:
-    - cron: '0 4 10 * *'  # Runs every month day 10 UTC-4 like deploy
+    - cron: '0 9 10 * *'  # Runs every month day 10 UTC-4 like deploy
 
 jobs:
   build:
