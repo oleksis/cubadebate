@@ -5,6 +5,7 @@
 import base64
 from collections import Counter, OrderedDict
 import json
+from json import JSONDecodeError
 import math
 import os
 import re
@@ -42,6 +43,43 @@ session = requests.Session()
 ConnectionErrorRequests = requests.exceptions.ConnectionError
 
 
+def save_elements_json(name: str, line: str = None, mode="w"):
+    """Save elements to file, by lines JSON elments."""
+    with open(name, mode) as _file:
+        if line:
+            _file.write(line + "\n")
+
+
+def read_elements_json(name: str) -> Optional[list]:
+    """Read by lines JSON data in file name.
+    Return list of elements or None"""
+    data = []
+    try:
+        with open(name, "r") as _file:
+            for line in _file.readlines():
+                if line:
+                    data += json.loads(line)
+    except JSONDecodeError:
+        print(f"Error reading lines of _file: {name}")
+    except FileNotFoundError as f_error:
+        print(f_error)
+
+    return data
+
+
+def get_comments_file(name: str) -> List[str]:
+    """Get List of comments from file name"""
+    comments_json = read_elements_json(name)
+    comments_bag = db.from_sequence(comments_json).map(
+        lambda d: d["content"]["rendered"]
+    )
+    # In Windows the Dask.Bag is multiprocessing by default, change to threads
+    with dask.config.set(scheduler="threads"):
+        comments: List[str] = comments_bag.compute()
+
+    return comments
+
+
 @delayed
 def get_elements_json(url: str, **kwargs) -> ElementList:
     """Get JSON of list elements from endpoint API Wordpress v2
@@ -59,6 +97,8 @@ def get_elements_json(url: str, **kwargs) -> ElementList:
             resp = session.get(url, params=params)
             if resp.status_code == 200:
                 results = resp.json()
+                if params.get("file"):
+                    save_elements_json(params.get("file"), resp.text, "a")
                 return results
     except ConnectionErrorRequests:
         pass  # Try again! Occurred Connection Error
@@ -68,7 +108,7 @@ def get_elements_json(url: str, **kwargs) -> ElementList:
 def get_comments(pages: int) -> List[str]:
     """Get List of comments per page"""
     comments_delayed = (
-        get_elements_json(url=COMMENTS_ENDPOINT, page=str(page))
+        get_elements_json(url=COMMENTS_ENDPOINT, page=str(page), file="comments.dat")
         for page in range(1, pages + 1)
     )
 
@@ -101,6 +141,8 @@ print(f"{len(comments_list)} Comments downloaded in {(_end - _start):.2f}s")
 
 
 # Cell
+# Truncate file comments.dat
+save_elements_json("comments.dat")
 NUM_PAGES = 100
 
 _start = time.time()
@@ -108,6 +150,12 @@ corpus = get_comments(pages=NUM_PAGES)
 _end = time.time()
 print(f"{len(corpus)} Comments downloaded in {(_end - _start):.2f}s")
 # corpus
+
+
+# Cell
+# Uncomment the next for get the comments from file
+# corpus = get_comments_file("comments.dat")
+# print(f"{len(corpus)} Comments from file comments.dat")
 
 
 # Cell
@@ -196,6 +244,13 @@ print(f"{len(documents_normalized)} Documents normalized in {(_end - _start):.2f
 
 
 # Cell:
+def create_ngram(document: DocumentList, ngram=1) -> DocumentList:
+    """Create N-Gram from document"""
+    return [
+        " ".join(document[i: i + ngram]) for i in range(len(document) - (ngram - 1))
+    ]
+
+
 # TF-IDF
 def comment_tf(document: DocumentList) -> TermFrequency:
     """Term Frequency for a document"""
@@ -263,6 +318,7 @@ tfidf_list = comments_tfidf(documents_normalized)
 # tfidf_list
 print("TF-IDF comments list")
 
+
 # Cell
 unordered_tfidf: Dict[str, float] = dict()
 
@@ -278,17 +334,31 @@ def sort_tfidf(tfidf_unordered) -> Iterable[Tuple[Any, Any]]:
 # unordered_tfidf
 ordered_comments_tfidf = OrderedDict(sort_tfidf(unordered_tfidf))
 
-# WordCloud with word_token
+# WordCloud with word_token bigrams (ngram=2)
 token_comments_tfidf = dict()
+unordered_tfidf_ngram: Dict[str, float] = dict()
+documents_normalized_ngram = list()
 
-for lemma_, value in ordered_comments_tfidf.items():
-    _token = str(bow_lemma_token[lemma_])
+for doc_norm in documents_normalized:
+    documents_normalized_ngram.append(create_ngram(doc_norm, ngram=2))
+
+tfidf_list_ngram = comments_tfidf(documents_normalized_ngram)
+
+for tfidf in tfidf_list_ngram:
+    for w, value in tfidf.items():
+        unordered_tfidf_ngram[w] = unordered_tfidf_ngram.get(w, 0) + value
+
+ordered_comments_tfidf_ngram = OrderedDict(sort_tfidf(unordered_tfidf_ngram))
+
+for lemma_, value in ordered_comments_tfidf_ngram.items():
+    _token = " ".join([str(bow_lemma_token[lm]) for lm in lemma_.split(" ")])
     token_comments_tfidf[_token] = value
 
 # Save to JSON file
 with open("comments_tfidf.json", "w") as file_json:
-    json.dump(ordered_comments_tfidf, file_json)
+    json.dump(ordered_comments_tfidf_ngram, file_json)
 print("TF-IDF ordered saved to comments_tfidf.json")
+
 
 # Cell
 # Capitolio Habana
@@ -315,6 +385,7 @@ else:
     image_downloaded: str = IMG_CAPITOLIO.split("\\")[-1].split("/")[-1]
     print(f"Image: {image_downloaded}")
 
+
 # Cell
 # WordsCloud Cubadebate
 IMG_WORDCLOUD = "wordcloud_cubadebate.png"
@@ -324,7 +395,7 @@ _mask = np.array(Image.open(IMG_CAPITOLIO))
 
 # Generate Word Cloud
 wordcloud = WordCloud(
-    max_words=1000,
+    max_words=500,
     #     max_font_size=50,
     height=1440,
     width=2160,
@@ -359,8 +430,9 @@ def export_image2html(image_name: str) -> None:
 # export_image2html(IMG_WORDCLOUD)
 # print("Exported image to html.")
 
+
 # Cell
-# Get Words (Lemma) with most TF-IDF
+# Get Words (Lemma) with most TF-IDF (unigram: ngram=1)
 df = (
     DataFrame.from_dict(
         data=ordered_comments_tfidf, dtype=int, orient="index", columns=["TF-IDF"]
