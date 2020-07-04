@@ -1,4 +1,4 @@
-# cubadebate
+# cubadebate ![CD/CI](https://github.com/oleksis/cubadebate/workflows/CD/CI/badge.svg?branch=master)
 ![WordCloud Cubadebate Comenta](https://oleksis.github.io/cubadebate/wordcloud_cubadebate.png)
 
 ## Intro
