@@ -35,31 +35,31 @@ class TestComments(TestCase):
         documents = [
             (
                 "<p>Como se llama la aplicaci\u00f3n para"
-                + " sacar los pasajes desde casa<\/p>\n"
+                " sacar los pasajes desde casa<\/p>\n"
             ),
             (
                 "<p>Magnifico programa pero lamentablemente poco conocido,"
-                + " ha tenido muy pobre divulgacion y lo debian repetir en"
-                + " otros horarios y canales. No he podido descargar los videos"
-                + " para conservarlos y debatir con mis estudiantes, estoy en"
-                + " eso.<br \/>\nFelicitaciones<\/p>\n"
+                " ha tenido muy pobre divulgacion y lo debian repetir en"
+                " otros horarios y canales. No he podido descargar los videos"
+                " para conservarlos y debatir con mis estudiantes, estoy en"
+                " eso.<br \/>\nFelicitaciones<\/p>\n"
             ),
             (
                 "<p>\u00bfPero est\u00e1n locos?... y sus padres tambi\u00e9n?"
-                + " Acaso no saben en lo que andan sus hijos? Eso s\u00f3lo"
-                + " ocurre en un pa\u00eds dirigido por un loco, apoyado por"
-                + " otros m\u00e1s locos que \u00e9l."
-                + " Se ver\u00e1n horrores.<\/p>\n"
+                " Acaso no saben en lo que andan sus hijos? Eso s\u00f3lo"
+                " ocurre en un pa\u00eds dirigido por un loco, apoyado por"
+                " otros m\u00e1s locos que \u00e9l."
+                " Se ver\u00e1n horrores.<\/p>\n"
             ),
             (
                 "<p>Gracias Jaqueline por tu regreso y dejar ke podamos"
-                + " disfrutar de tu presencia ,Dios te bendiga y deseo"
-                + " triunfes  en tus proyectos<\/p>\n"
+                " disfrutar de tu presencia ,Dios te bendiga y deseo"
+                " triunfes  en tus proyectos<\/p>\n"
             ),
             (
                 "<p>Actualmente est\u00e1 en desarrollo la versi\u00f3n"
-                + " web de Viajando,  los que prefieran acceder"
-                + " por esta via<\/p>\n"
+                " web de Viajando,  los que prefieran acceder"
+                " por esta via<\/p>\n"
             ),
         ]
 
