@@ -18,5 +18,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Install Spacy es_core_news_model
+      run: python -m spacy download es_core_news_sm
     - name: Test UnitTest
       run: python -m unittest discover -s tests
