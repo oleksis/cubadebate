@@ -11,8 +11,12 @@ jobs:
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
     - name: Install Requirements
-      run: pip install -r requirements.txt
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
     - name: Install Spacy es_core_news_model
       run: python -m spacy download es_core_news_sm
     - name: Run CUBADEBATE_SPACY.py

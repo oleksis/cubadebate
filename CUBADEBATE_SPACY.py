@@ -4,6 +4,7 @@
 # Cell
 import base64
 from collections import Counter, OrderedDict
+from datetime import datetime
 import json
 from json import JSONDecodeError
 import math
@@ -16,6 +17,7 @@ from typing import List, Optional, Dict, Tuple, Iterable, Any
 import requests
 import dask
 from dask import bag as db
+from dask import dataframe as dd
 from dask.delayed import delayed, Delayed
 import numpy as np
 from pandas import DataFrame
@@ -42,6 +44,21 @@ SEARCH_ENDPOINT = CUBADEBATE_API + "search/"
 session = requests.Session()
 ConnectionErrorRequests = requests.exceptions.ConnectionError
 
+FECHA_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
+
+def create_datetime(string: str) -> Optional[datetime]:
+    """Create datetime from string '2014-07-03T23:27:51'"""
+    date_time = None
+
+    try:
+        if string is not None:
+            date_time = datetime.strptime(string, FECHA_FORMAT)
+    except ValueError:
+        print("Format no valid!")
+
+    return date_time
+
 
 def save_elements_json(name: str, line: str = None, mode="w"):
     """Save elements to file, by lines JSON elments."""
@@ -67,17 +84,24 @@ def read_elements_json(name: str) -> Optional[list]:
     return data
 
 
-def get_comments_file(name: str) -> List[str]:
+def get_comments_file(name: str) -> DataFrame:
     """Get List of comments from file name"""
     comments_json = read_elements_json(name)
     comments_bag = db.from_sequence(comments_json).map(
-        lambda d: d["content"]["rendered"]
+        lambda d: {
+            "id": d["id"],
+            "post": d["post"],
+            "author_name": d["author_name"],
+            "date": create_datetime(d["date"]),
+            "content": d["content"]["rendered"],
+            "link": d["link"],
+        }
     )
     # In Windows the Dask.Bag is multiprocessing by default, change to threads
     with dask.config.set(scheduler="threads"):
         comments: List[str] = comments_bag.compute()
-
-    return comments
+    df_comments = DataFrame(comments)
+    return df_comments
 
 
 @delayed
@@ -105,7 +129,7 @@ def get_elements_json(url: str, **kwargs) -> ElementList:
     return results
 
 
-def get_comments(pages: int) -> List[str]:
+def get_comments(pages: int) -> DataFrame:
     """Get List of comments per page"""
     comments_delayed = (
         get_elements_json(url=COMMENTS_ENDPOINT, page=str(page), file="comments.dat")
@@ -113,12 +137,20 @@ def get_comments(pages: int) -> List[str]:
     )
 
     comments_bag = db.from_delayed(comments_delayed).map(
-        lambda d: d["content"]["rendered"]
+        lambda d: {
+            "id": d["id"],
+            "post": d["post"],
+            "author_name": d["author_name"],
+            "date": create_datetime(d["date"]),
+            "content": d["content"]["rendered"],
+            "link": d["link"],
+        }
     )
     # In Windows the Dask.Bag is multiprocessing by default, change to threads
     with dask.config.set(scheduler="threads"):
-        comments: List[str] = comments_bag.compute()
-    return comments
+        comments: List[dict] = comments_bag.compute()
+    df_comments = DataFrame(comments)
+    return df_comments
 
 
 def get_searches(words: List[str]) -> List[Dict[str, Any]]:
@@ -133,32 +165,6 @@ def get_searches(words: List[str]) -> List[Dict[str, Any]]:
     return searches
 
 
-_start = time.time()
-comments_list = get_comments(pages=1)
-_end = time.time()
-print(f"{len(comments_list)} Comments downloaded in {(_end - _start):.2f}s")
-# comments_list
-
-
-# Cell
-# Truncate file comments.dat
-save_elements_json("comments.dat")
-NUM_PAGES = 100
-
-_start = time.time()
-corpus = get_comments(pages=NUM_PAGES)
-_end = time.time()
-print(f"{len(corpus)} Comments downloaded in {(_end - _start):.2f}s")
-# corpus
-
-
-# Cell
-# Uncomment the next for get the comments from file
-# corpus = get_comments_file("comments.dat")
-# print(f"{len(corpus)} Comments from file comments.dat")
-
-
-# Cell
 # Load model
 nlp = spacy.load("es_core_news_sm")
 bow_lemma_token: Dict[str, Token] = dict()
@@ -203,7 +209,6 @@ def is_token_allowed(token: Token) -> bool:
     return True
 
 
-@delayed
 def clean(doc: str) -> List[str]:
     """Remove grave accents, stopwords, the punctuations and normalize the corpus."""
     text = get_text(doc)
@@ -219,35 +224,10 @@ def clean(doc: str) -> List[str]:
     return tokens
 
 
-def get_documents_delayed(documents: DocumentList) -> List[Delayed]:
-    """Return List[Delayed] clean document"""
-    results = []  # type: List[dask.delayed.Delayed]
-
-    for document in documents:
-        results.append(clean(document))
-
-    return results
-
-
-def get_documents_normalized(documents: DocumentList) -> DocumentNormalizedList:
-    """Return DocumentNormalizedList clean document"""
-    with dask.config.set(scheduler="threads"):
-        docs_normalized = list(*dask.compute(get_documents_delayed(documents)))
-    return docs_normalized
-
-
-# Process corpus using Dask.delayed
-_start = time.time()
-documents_normalized = get_documents_normalized(corpus)
-_end = time.time()
-print(f"{len(documents_normalized)} Documents normalized in {(_end - _start):.2f}s")
-
-
-# Cell:
 def create_ngram(document: DocumentList, ngram=1) -> DocumentList:
     """Create N-Gram from document"""
     return [
-        " ".join(document[i: i + ngram]) for i in range(len(document) - (ngram - 1))
+        " ".join(document[i : i + ngram]) for i in range(len(document) - (ngram - 1))
     ]
 
 
@@ -314,103 +294,10 @@ def comments_tfidf(documents: DocumentNormalizedList) -> TFIDF_List:
     return tfidf_comments
 
 
-tfidf_list = comments_tfidf(documents_normalized)
-# tfidf_list
-print("TF-IDF comments list")
-
-
-# Cell
-unordered_tfidf: Dict[str, float] = dict()
-
-for tfidf in tfidf_list:
-    for w, value in tfidf.items():
-        unordered_tfidf[w] = unordered_tfidf.get(w, 0) + value
-
-
 def sort_tfidf(tfidf_unordered) -> Iterable[Tuple[Any, Any]]:
     return sorted(tfidf_unordered.items(), key=lambda x: x[1], reverse=True)
 
 
-# unordered_tfidf
-ordered_comments_tfidf = OrderedDict(sort_tfidf(unordered_tfidf))
-
-# WordCloud with word_token bigrams (ngram=2)
-token_comments_tfidf = dict()
-unordered_tfidf_ngram: Dict[str, float] = dict()
-documents_normalized_ngram = list()
-
-for doc_norm in documents_normalized:
-    documents_normalized_ngram.append(create_ngram(doc_norm, ngram=2))
-
-tfidf_list_ngram = comments_tfidf(documents_normalized_ngram)
-
-for tfidf in tfidf_list_ngram:
-    for w, value in tfidf.items():
-        unordered_tfidf_ngram[w] = unordered_tfidf_ngram.get(w, 0) + value
-
-ordered_comments_tfidf_ngram = OrderedDict(sort_tfidf(unordered_tfidf_ngram))
-
-for lemma_, value in ordered_comments_tfidf_ngram.items():
-    _token = " ".join([str(bow_lemma_token[lm]) for lm in lemma_.split(" ")])
-    token_comments_tfidf[_token] = value
-
-# Save to JSON file
-with open("comments_tfidf.json", "w") as file_json:
-    json.dump(ordered_comments_tfidf_ngram, file_json)
-print("TF-IDF ordered saved to comments_tfidf.json")
-
-
-# Cell
-# Capitolio Habana
-IMG_CAPITOLIO = os.getenv("IMG_CAPITOLIO") or "capitolio.jpg"
-
-# get data directory (using getcwd() is needed to support running example in generated IPython notebook)
-_dir = os.path.dirname(__file__) if "__file__" in locals() else os.getcwd()
-
-IMG_CAPITOLIO: str = os.path.join(_dir, IMG_CAPITOLIO)
-IMG_CAPITOLIO_LINK: str = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Capitolio_full.jpg"
-
-# download mask images
-# !wget http://media.cubadebate.cu/wp-content/gallery/la-habana-nocturna/app_la-habana_05.jpg -O la_habana.jpg
-if not os.path.isfile(IMG_CAPITOLIO):
-    response = requests.get(IMG_CAPITOLIO_LINK)
-
-    if response.status_code == 200:
-        with open(IMG_CAPITOLIO, "wb") as _capitolio:
-            _capitolio.write(response.content)
-            print("Image downloaded.")
-    else:
-        print("Image No downloaded!")
-else:
-    image_downloaded: str = IMG_CAPITOLIO.split("\\")[-1].split("/")[-1]
-    print(f"Image: {image_downloaded}")
-
-
-# Cell
-# WordsCloud Cubadebate
-IMG_WORDCLOUD = "wordcloud_cubadebate.png"
-
-# read the mask image
-_mask = np.array(Image.open(IMG_CAPITOLIO))
-
-# Generate Word Cloud
-wordcloud = WordCloud(
-    max_words=500,
-    #     max_font_size=50,
-    height=1440,
-    width=2160,
-    background_color="white",
-    mask=_mask,
-    contour_width=1,
-    contour_color="steelblue",
-    stopwords=STOP_WORDS,
-).generate_from_frequencies(token_comments_tfidf)
-# Save to file
-wordcloud.to_file(IMG_WORDCLOUD)
-print("WordCloud Cubadebate image saved.\n")
-
-
-# Cell
 def export_image2html(image_name: str) -> None:
     """Export a image to html file"""
     with open(image_name, "rb") as file_img:
@@ -427,70 +314,194 @@ def export_image2html(image_name: str) -> None:
         _html.write(img_str)
 
 
-# export_image2html(IMG_WORDCLOUD)
-# print("Exported image to html.")
+if __name__ == "__main__":
+    """Entry point"""
+    # Cell
+    _start = time.time()
+    df_comments = get_comments(pages=1)
+    _end = time.time()
+    print(f"{len(df_comments)} Comments downloaded in {(_end - _start):.2f}s")
+    # df_comments.info()
+    # df_comments.head()
 
+    # Cell
+    # Truncate file comments.dat
+    save_elements_json("comments.dat")
+    NUM_PAGES = 100
 
-# Cell
-# Get Words (Lemma) with most TF-IDF (unigram: ngram=1)
-df = (
-    DataFrame.from_dict(
-        data=ordered_comments_tfidf, dtype=int, orient="index", columns=["TF-IDF"]
+    _start = time.time()
+    df_comments = get_comments(pages=NUM_PAGES)
+    _end = time.time()
+    print(f"{len(df_comments)} Comments downloaded in {(_end - _start):.2f}s")
+    # print(df_comments.info())
+    df_comments
+
+    # Cell
+    assert not df_comments.empty, "No comments to process"
+    # Uncomment the next for get the comments from file
+    # df_comments = get_comments_file("comments.dat")
+    # print(f"{len(df_comments)} Comments from file comments.dat")
+    # df_comments
+
+    # Cell
+    # Process corpus. Normalize. Using threads
+    _start = time.time()
+    ddf_comments = dd.from_pandas(df_comments, chunksize=10)
+    df_comments["text"] = (
+        ddf_comments["content"].apply(clean, meta=("content", "object")).compute()
     )
-    .reset_index()
-    .rename(index=str, columns={"index": "Word"})
-)
-rows, columns = df.shape
-print(f"Panda DataFrame shape:({rows}, {columns})")
+    documents_normalized = list(df_comments["text"].values)
+    _end = time.time()
+    print(f"{len(documents_normalized)} Documents normalized in {(_end - _start):.2f}s")
+    # print(df_comments.info())
+    df_comments
 
-df_gb = df.groupby(["TF-IDF"], sort=False).first().reset_index()
-rows, columns = df_gb.shape
-print(f"GroupBy DataFrame shape:({rows}, {columns})\n")
-print(df_gb)
+    # Cell
+    # TF-IDF Comments list
+    tfidf_list = comments_tfidf(documents_normalized)
 
-words_token = list(df_gb["Word"].values)
-searches_dict = dict()
-searches_ids = set()
+    unordered_tfidf: Dict[str, float] = dict()
 
-for w_token in words_token:
-    search_list = get_searches([w_token])
-    # Get first searched result
-    if len(search_list) > 0:
-        search_id = search_list[0]["id"]
-        if search_id not in searches_ids:
-            searches_ids.add(search_id)
-            searches_dict[w_token] = search_list[0]
+    for tfidf in tfidf_list:
+        for w, value in tfidf.items():
+            unordered_tfidf[w] = unordered_tfidf.get(w, 0) + value
 
-# DataFrame First Search Posts
-if len(searches_dict) > 0:
-    searches_df = DataFrame.from_dict(data=searches_dict, orient="index",).drop(
-        columns=["type", "subtype", "_links"]
+    # unordered_tfidf
+    ordered_comments_tfidf = OrderedDict(sort_tfidf(unordered_tfidf))
+
+    # WordCloud with word_token bigrams (ngram=2)
+    token_comments_tfidf = dict()
+    unordered_tfidf_ngram: Dict[str, float] = dict()
+    documents_normalized_ngram = list()
+
+    for doc_norm in documents_normalized:
+        documents_normalized_ngram.append(create_ngram(doc_norm, ngram=2))
+
+    tfidf_list_ngram = comments_tfidf(documents_normalized_ngram)
+
+    for tfidf in tfidf_list_ngram:
+        for w, value in tfidf.items():
+            unordered_tfidf_ngram[w] = unordered_tfidf_ngram.get(w, 0) + value
+
+    ordered_comments_tfidf_ngram = OrderedDict(sort_tfidf(unordered_tfidf_ngram))
+
+    for lemma_, value in ordered_comments_tfidf_ngram.items():
+        _token = " ".join([str(bow_lemma_token[lm]) for lm in lemma_.split(" ")])
+        token_comments_tfidf[_token] = value
+
+    # Save to JSON file
+    with open("comments_tfidf.json", "w") as file_json:
+        json.dump(ordered_comments_tfidf_ngram, file_json)
+    print("TF-IDF ordered saved to comments_tfidf.json")
+
+    # Cell
+    # Capitolio Habana
+    IMG_CAPITOLIO = os.getenv("IMG_CAPITOLIO") or "capitolio.jpg"
+
+    # get data directory (using getcwd() is needed to support running example in generated IPython notebook)
+    _dir = os.path.dirname(__file__) if "__file__" in locals() else os.getcwd()
+
+    IMG_CAPITOLIO: str = os.path.join(_dir, IMG_CAPITOLIO)
+    IMG_CAPITOLIO_LINK: str = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Capitolio_full.jpg"
+
+    # download mask images
+    # !wget http://media.cubadebate.cu/wp-content/gallery/la-habana-nocturna/app_la-habana_05.jpg -O la_habana.jpg
+    if not os.path.isfile(IMG_CAPITOLIO):
+        response = requests.get(IMG_CAPITOLIO_LINK)
+
+        if response.status_code == 200:
+            with open(IMG_CAPITOLIO, "wb") as _capitolio:
+                _capitolio.write(response.content)
+                print("Image downloaded.")
+        else:
+            print("Image No downloaded!")
+    else:
+        image_downloaded: str = IMG_CAPITOLIO.split("\\")[-1].split("/")[-1]
+        print(f"Image: {image_downloaded}")
+
+    # Cell
+    # WordsCloud Cubadebate
+    IMG_WORDCLOUD = "wordcloud_cubadebate.png"
+
+    # read the mask image
+    _mask = np.array(Image.open(IMG_CAPITOLIO))
+
+    # Generate Word Cloud
+    wordcloud = WordCloud(
+        max_words=500,
+        #     max_font_size=50,
+        height=1440,
+        width=2160,
+        background_color="white",
+        mask=_mask,
+        contour_width=1,
+        contour_color="steelblue",
+        stopwords=STOP_WORDS,
+    ).generate_from_frequencies(token_comments_tfidf)
+    # Save to file
+    wordcloud.to_file(IMG_WORDCLOUD)
+    print("WordCloud Cubadebate image saved.\n")
+
+    # Cell
+    # Get Words (Lemma) with most TF-IDF (unigram: ngram=1)
+    df = (
+        DataFrame.from_dict(
+            data=ordered_comments_tfidf, dtype=int, orient="index", columns=["TF-IDF"]
+        )
+        .reset_index()
+        .rename(index=str, columns={"index": "Word"})
     )
+    rows, columns = df.shape
+    print(f"Panda DataFrame shape:({rows}, {columns})")
 
-    df_dates = searches_df["url"].str.extract(r"(?P<date>\d{4}/\d{2}/\d{2})")
+    df_gb = df.groupby(["TF-IDF"], sort=False).first().reset_index()
+    rows, columns = df_gb.shape
+    print(f"GroupBy DataFrame shape:({rows}, {columns})\n")
+    print(df_gb)
 
-    searches_by_dates = searches_df.join(df_dates).sort_values(
-        by="date", ascending=False
-    )
+    words_token = list(df_gb["Word"].values)
+    searches_dict = dict()
+    searches_ids = set()
 
-    print("\nTop Word Token and Post\n")
-    print(searches_by_dates)
-    searches_by_dates.to_json(os.path.join(_dir, "top_word_post.json"))
-    print("\nSaved top_word_post.json\n")
+    for w_token in words_token:
+        search_list = get_searches([w_token])
+        # Get first searched result
+        if len(search_list) > 0:
+            search_id = search_list[0]["id"]
+            if search_id not in searches_ids:
+                searches_ids.add(search_id)
+                searches_dict[w_token] = search_list[0]
 
-    with open("index.html", "w", encoding="utf-8") as f_index, open(
-        "index.tpl", "r"
-    ) as file:
-        tpl = file.read()
-        index_template = Template(tpl)
+    # DataFrame First Search Posts
+    if len(searches_dict) > 0:
+        searches_df = DataFrame.from_dict(data=searches_dict, orient="index",).drop(
+            columns=["type", "subtype", "_links"]
+        )
 
-        text_link = "<ul>\n"
-        for _index, _title, _url in searches_by_dates.reset_index()[
-            ["index", "title", "url"]
-        ].values:
-            text_link += f"\t<li><a href='{_url}' rel='external' data-token='{_index}'>{_title}</a></li>\n"
-        text_link += "</ul>"
-        # Create index.html from index.tpl
-        f_index.write(index_template.substitute(CUBADEBATE_LINKS=text_link))
+        df_dates = searches_df["url"].str.extract(r"(?P<date>\d{4}/\d{2}/\d{2})")
 
-    print("Rewrite index.html.\n")
+        searches_by_dates = searches_df.join(df_dates).sort_values(
+            by="date", ascending=False
+        )
+
+        print("\nTop Word Token and Post\n")
+        print(searches_by_dates)
+        searches_by_dates.to_json(os.path.join(_dir, "top_word_post.json"))
+        print("\nSaved top_word_post.json\n")
+
+        with open("index.html", "w", encoding="utf-8") as f_index, open(
+            "index.tpl", "r"
+        ) as file:
+            tpl = file.read()
+            index_template = Template(tpl)
+
+            text_link = "<ul>\n"
+            for _index, _title, _url in searches_by_dates.reset_index()[
+                ["index", "title", "url"]
+            ].values:
+                text_link += f"\t<li><a href='{_url}' rel='external' data-token='{_index}'>{_title}</a></li>\n"
+            text_link += "</ul>"
+            # Create index.html from index.tpl
+            f_index.write(index_template.substitute(CUBADEBATE_LINKS=text_link))
+
+        print("Rewrite index.html.\n")
