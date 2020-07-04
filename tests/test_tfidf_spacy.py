@@ -11,28 +11,10 @@ from CUBADEBATE_SPACY import get_comments_file, clean, comments_tfidf
 
 
 class TestComments(TestCase):
-    def test_get_comments(self, name="comments.dat"):
-        """Test List of comments from file name"""
-        file_name = os.path.join(ROOT_PATH, "tests", name)
-        df_comments = get_comments_file(file_name)
-        self.assertFalse(df_comments.empty)
-        self.assertEqual(len(df_comments), 990)
+    """Test processing/Tf-Idf comments"""
 
-    def test_clean_comment(self):
-        """Test Clean process"""
-        raw_comment = (
-            "<p>Como se llama la aplicaci\u00f3n para"
-            + " sacar los pasajes desde casa<\/p>\n"
-        )
-        clean_comment = clean(raw_comment)
-        self.assertEqual(
-            sorted(clean_comment),
-            sorted(["llamar", "aplicacion", "sacar", "pasaje", "casar"]),
-        )
-
-    def test_comments_tfidf(self):
-        """Test Calculate TF-IDF of the documents"""
-        documents = [
+    def setUp(self):
+        self.documents = [
             (
                 "<p>Como se llama la aplicaci\u00f3n para"
                 " sacar los pasajes desde casa<\/p>\n"
@@ -63,7 +45,25 @@ class TestComments(TestCase):
             ),
         ]
 
-        documents_normalized = [clean(doc) for doc in documents]
+    def test_get_comments(self, name="comments.dat"):
+        """Test get list of comments from file name"""
+        file_name = os.path.join(ROOT_PATH, "tests", name)
+        df_comments = get_comments_file(file_name)
+        self.assertFalse(df_comments.empty)
+        self.assertEqual(len(df_comments), 990)
+
+    def test_clean_comment(self):
+        """Test clean process"""
+        raw_comment = self.documents[0]
+        clean_comment = clean(raw_comment)
+        self.assertEqual(
+            sorted(clean_comment),
+            sorted(["llamar", "aplicacion", "sacar", "pasaje", "casar"]),
+        )
+
+    def test_comments_tfidf(self):
+        """Test calculate TF-IDF of the documents"""
+        documents_normalized = [clean(doc) for doc in self.documents]
         tfidf_list = comments_tfidf(documents_normalized)
         self.assertEqual(round(tfidf_list[0]["llamar"], 2), 0.32)
         self.assertEqual(round(tfidf_list[1]["programar"], 2), 0.09)
