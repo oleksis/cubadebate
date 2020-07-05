@@ -1,4 +1,4 @@
-# cubadebate ![CD/CI](https://github.com/oleksis/cubadebate/workflows/CD/CI/badge.svg?branch=master)
+# cubadebate ![CI Status](https://github.com/oleksis/cubadebate/workflows/CD/CI/badge.svg?branch=master)
 ![WordCloud Cubadebate Comenta](https://oleksis.github.io/cubadebate/wordcloud_cubadebate.png)
 
 ## Intro
@@ -58,4 +58,4 @@ print("Spacy es_core_news_model installed.\nRestart the runtime!")
 
 
 ## Release
-[Cubadebate WordsCloud v1.2.16](https://github.com/oleksis/cubadebate/releases/tag/v1.2.16)
+[Cubadebate WordsCloud v1.2.17](https://github.com/oleksis/cubadebate/releases/tag/v1.2.17)

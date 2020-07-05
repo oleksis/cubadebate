@@ -18,7 +18,7 @@ import requests
 import dask
 from dask import bag as db
 from dask import dataframe as dd
-from dask.delayed import delayed, Delayed
+from dask.delayed import delayed
 import numpy as np
 from pandas import DataFrame
 from PIL import Image
@@ -304,7 +304,7 @@ def export_image2html(image_name: str) -> None:
         data = base64.b64encode(file_img.read()).decode("utf-8")
 
     img_str = """
-    <img width="100%" height="100%" 
+    <img width="100%" height="100%"
     src="data:image/png;base64,{}" />
     """.format(
         data
@@ -398,14 +398,16 @@ if __name__ == "__main__":
     # Capitolio Habana
     IMG_CAPITOLIO = os.getenv("IMG_CAPITOLIO") or "capitolio.jpg"
 
-    # get data directory (using getcwd() is needed to support running example in generated IPython notebook)
+    # get data directory (using getcwd() is needed to support running example
+    # in generated IPython notebook)
     _dir = os.path.dirname(__file__) if "__file__" in locals() else os.getcwd()
 
     IMG_CAPITOLIO: str = os.path.join(_dir, IMG_CAPITOLIO)
-    IMG_CAPITOLIO_LINK: str = "https://upload.wikimedia.org/wikipedia/commons/8/8f/Capitolio_full.jpg"
+    IMG_CAPITOLIO_LINK: str = (
+        "https://upload.wikimedia.org/wikipedia/commons/8/8f/Capitolio_full.jpg"
+    )
 
     # download mask images
-    # !wget http://media.cubadebate.cu/wp-content/gallery/la-habana-nocturna/app_la-habana_05.jpg -O la_habana.jpg
     if not os.path.isfile(IMG_CAPITOLIO):
         response = requests.get(IMG_CAPITOLIO_LINK)
 
@@ -499,7 +501,10 @@ if __name__ == "__main__":
             for _index, _title, _url in searches_by_dates.reset_index()[
                 ["index", "title", "url"]
             ].values:
-                text_link += f"\t<li><a href='{_url}' rel='external' data-token='{_index}'>{_title}</a></li>\n"
+                text_link += (
+                    f"\t<li><a href='{_url}' rel='external' "
+                    f"data-token='{_index}'>{_title}</a></li>\n"
+                )
             text_link += "</ul>"
             # Create index.html from index.tpl
             f_index.write(index_template.substitute(CUBADEBATE_LINKS=text_link))
