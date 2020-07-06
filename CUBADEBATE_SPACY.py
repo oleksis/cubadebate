@@ -491,22 +491,22 @@ if __name__ == "__main__":
         searches_by_dates.to_json(os.path.join(_dir, "top_word_post.json"))
         print("\nSaved top_word_post.json\n")
 
-        with open("index.html", "w", encoding="utf-8") as f_index, open(
-            "index.tpl", "r"
-        ) as file:
-            tpl = file.read()
-            index_template = Template(tpl)
+        if os.path.isfile("index.tpl"):
+            with open("index.html", "w", encoding="utf-8") as f_index, open(
+                "index.tpl", "r"
+            ) as file:
+                tpl = file.read()
+                index_template = Template(tpl)
 
-            text_link = "<ul>\n"
-            for _index, _title, _url in searches_by_dates.reset_index()[
-                ["index", "title", "url"]
-            ].values:
-                text_link += (
-                    f"\t<li><a href='{_url}' rel='external' "
-                    f"data-token='{_index}'>{_title}</a></li>\n"
-                )
-            text_link += "</ul>"
-            # Create index.html from index.tpl
-            f_index.write(index_template.substitute(CUBADEBATE_LINKS=text_link))
-
-        print("Rewrite index.html.\n")
+                text_link = "<ul>\n"
+                for _index, _title, _url in searches_by_dates.reset_index()[
+                    ["index", "title", "url"]
+                ].values:
+                    text_link += (
+                        f"\t<li><a href='{_url}' rel='external' "
+                        f"data-token='{_index}'>{_title}</a></li>\n"
+                    )
+                text_link += "</ul>"
+                # Create index.html from index.tpl
+                f_index.write(index_template.substitute(CUBADEBATE_LINKS=text_link))
+            print("Rewrite index.html.\n")
