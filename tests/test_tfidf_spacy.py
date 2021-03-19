@@ -58,7 +58,7 @@ class TestComments(TestCase):
         clean_comment = clean(raw_comment)
         self.assertEqual(
             sorted(clean_comment),
-            sorted(["llamar", "aplicacion", "sacar", "pasaje", "casar"]),
+            sorted(["llamar", "aplicacion", "sacar", "pasaje", "casa"]),
         )
 
     def test_comments_tfidf(self):
@@ -66,10 +66,10 @@ class TestComments(TestCase):
         documents_normalized = [clean(doc) for doc in self.documents]
         tfidf_list = comments_tfidf(documents_normalized)
         self.assertEqual(round(tfidf_list[0]["llamar"], 2), 0.32)
-        self.assertEqual(round(tfidf_list[1]["programar"], 2), 0.09)
-        self.assertEqual(round(tfidf_list[2]["apoyar"], 2), 0.12)
-        self.assertEqual(round(tfidf_list[3]["triunfar"], 2), 0.13)
-        self.assertEqual(round(tfidf_list[4]["preferir"], 2), 0.23)
+        self.assertEqual(round(tfidf_list[1]["programa"], 2), 0.09)
+        self.assertEqual(round(tfidf_list[2]["apoyado"], 2), 0.12)
+        self.assertEqual(round(tfidf_list[3]["disfrutar"], 2), 0.13)
+        self.assertEqual(round(tfidf_list[4]["desarrollo"], 2), 0.23)
 
 
 if __name__ == "__main__":

@@ -192,7 +192,8 @@ def get_text(markup: str) -> str:
 
 def preprocess_token(token: Token) -> str:
     """Remove grave accents and return lemmatized token lower case"""
-    result = remplace_accents(token.lemma_.strip().lower())
+    # TODO: Avoid token like "inmiscuir el"
+    result = remplace_accents(token.lemma_.strip().split(" ")[0].lower())
     return result
 
 
@@ -200,7 +201,7 @@ def is_token_allowed(token: Token) -> bool:
     """No Stop words, No Punctuations or len token >= 3"""
     if (
         not token
-        or not token.string.strip()
+        or not token.text.strip()
         or token.is_stop
         or token.is_punct
         or len(token) < 3
@@ -214,6 +215,7 @@ def clean(doc: str) -> List[str]:
     text = get_text(doc)
     text = text.lower()
     tokens = []
+    global bow_lemma_token
 
     for token in nlp(text):
         if is_token_allowed(token):
