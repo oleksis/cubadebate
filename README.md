@@ -41,7 +41,7 @@ Como resultado se obtiene cada cierta hora en el día la imagen **[wordcloud_cub
 ### Open in Colab
 For use in Google Colab you should be install the next packages, add cell python code first and then go to **Restart the runtime**:
 ```python
-!pip install dask
+!pip install dask[bag]
 !pip install wordcloud
 !pip install spacy
 !python -m spacy download es_core_news_sm
@@ -58,4 +58,4 @@ print("Spacy es_core_news_model installed.\nRestart the runtime!")
 
 
 ## Release
-[Cubadebate WordsCloud v1.2.18](https://github.com/oleksis/cubadebate/releases/tag/v1.2.18)
+[Cubadebate WordsCloud v1.3.0](https://github.com/oleksis/cubadebate/releases/tag/v1.3.0)
