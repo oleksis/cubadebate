@@ -8,3 +8,6 @@ __pycache__
 artifacts
 docs
 integration
+out
+typings
+debug.log

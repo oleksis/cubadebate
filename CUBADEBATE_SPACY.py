@@ -23,7 +23,7 @@ import numpy as np
 from pandas import DataFrame
 from PIL import Image
 import spacy
-from spacy.tokens import Token
+from spacy.tokens.token import Token
 from spacy.lang.es.stop_words import STOP_WORDS
 from wordcloud import WordCloud
 
@@ -122,7 +122,9 @@ def get_elements_json(url: str, **kwargs) -> ElementList:
             if resp.status_code == 200:
                 results = resp.json()
                 if params.get("file"):
-                    save_elements_json(params.get("file"), resp.text, "a")
+                    save_elements_json(
+                        params.get("file", "elements.dat"), resp.text, "a"
+                    )
                 return results
     except ConnectionErrorRequests:
         pass  # Try again! Occurred Connection Error
@@ -192,19 +194,20 @@ def get_text(markup: str) -> str:
 
 def preprocess_token(token: Token) -> str:
     """Remove grave accents and return lemmatized token lower case"""
-    # TODO: Avoid token like "inmiscuir el"
-    result = remplace_accents(token.lemma_.strip().split(" ")[0].lower())
+    result = remplace_accents(token.lemma_.strip().lower())
     return result
 
 
 def is_token_allowed(token: Token) -> bool:
     """No Stop words, No Punctuations or len token >= 3"""
+    # Avoid token: inmiscuyéndose lemma_ "inmiscuir el"
     if (
         not token
-        or not token.text.strip()
+        or token.is_space
         or token.is_stop
         or token.is_punct
         or len(token) < 3
+        or " " in token.lemma_.strip()
     ):
         return False
     return True
@@ -252,7 +255,7 @@ def comments_tf(documents: DocumentNormalizedList) -> List[TermFrequency]:
 
 def count_dict(documents: DocumentNormalizedList) -> Dict[str, int]:
     """Counter the word in all documents at least ones"""
-    counts = dict()
+    counts: Dict[str, int] = dict()
     for document in documents:
         uniq_words = set(document)
         for word in uniq_words:
@@ -398,13 +401,13 @@ if __name__ == "__main__":
 
     # Cell
     # Capitolio Habana
-    IMG_CAPITOLIO = os.getenv("IMG_CAPITOLIO") or "capitolio.jpg"
+    IMG_CAPITOLIO: str = os.getenv("IMG_CAPITOLIO") or "capitolio.jpg"
 
     # get data directory (using getcwd() is needed to support running example
     # in generated IPython notebook)
     _dir = os.path.dirname(__file__) if "__file__" in locals() else os.getcwd()
 
-    IMG_CAPITOLIO: str = os.path.join(_dir, IMG_CAPITOLIO)
+    IMG_CAPITOLIO = os.path.join(_dir, IMG_CAPITOLIO)
     IMG_CAPITOLIO_LINK: str = (
         "https://upload.wikimedia.org/wikipedia/commons/8/8f/Capitolio_full.jpg"
     )
@@ -478,9 +481,10 @@ if __name__ == "__main__":
 
     # DataFrame First Search Posts
     if len(searches_dict) > 0:
-        searches_df = DataFrame.from_dict(data=searches_dict, orient="index",).drop(
-            columns=["type", "subtype", "_links"]
-        )
+        searches_df = DataFrame.from_dict(
+            data=searches_dict,
+            orient="index",
+        ).drop(columns=["type", "subtype", "_links"])
 
         df_dates = searches_df["url"].str.extract(r"(?P<date>\d{4}/\d{2}/\d{2})")
 
