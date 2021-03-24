@@ -12,7 +12,7 @@ import os
 import re
 from string import Template
 import time
-from typing import List, Optional, Dict, Tuple, Iterable, Any
+from typing import cast, List, Optional, Dict, Tuple, Iterable, Any
 
 import requests
 import dask
@@ -353,7 +353,9 @@ if __name__ == "__main__":
     _start = time.time()
     ddf_comments = dd.from_pandas(df_comments, chunksize=10)
     df_comments["text"] = (
-        ddf_comments["content"].apply(clean, meta=("content", "object")).compute()
+        cast(dd.core.Series, ddf_comments["content"])
+        .apply(clean, meta=("content", "object"))
+        .compute()
     )
     documents_normalized = list(df_comments["text"].values)
     _end = time.time()
