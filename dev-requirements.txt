@@ -34,6 +34,8 @@ entrypoints==0.3
     # via nbconvert
 flake8==3.9.0
     # via -r .\dev-requirements.in
+graphviz==0.16
+    # via -r .\dev-requirements.in
 ipykernel==5.5.0
     # via notebook
 ipython-genutils==0.2.0

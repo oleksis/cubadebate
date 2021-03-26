@@ -351,12 +351,23 @@ if __name__ == "__main__":
     # Cell
     # Process corpus. Normalize. Using threads
     _start = time.time()
-    ddf_comments = dd.from_pandas(df_comments, chunksize=10)
-    df_comments["text"] = (
-        cast(dd.core.Series, ddf_comments["content"])
-        .apply(clean, meta=("content", "object"))
-        .compute()
+    dtype = {
+        "id": "int64",
+        "post": "int64",
+        "author_name": "object",
+        "date": "datetime64[ns]",
+        "content": "object",
+        "link": "object",
+        "text": "object",
+    }
+    ddf_comments = dd.from_pandas(df_comments, npartitions=10)
+    ddf_comments = cast(dd.core.DataFrame, ddf_comments).map_partitions(
+        lambda df: df.assign(text=[clean(str(content)) for content in df.content]),
+        meta=dtype,
     )
+    # Depend graphviz
+    # ddf_comments.visualize(filename="comments_text.png", rankdir="TD")
+    df_comments = ddf_comments.compute()
     documents_normalized = list(df_comments["text"].values)
     _end = time.time()
     print(f"{len(documents_normalized)} Documents normalized in {(_end - _start):.2f}s")

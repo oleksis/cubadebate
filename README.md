@@ -58,4 +58,4 @@ print("Spacy es_core_news_model installed.\nRestart the runtime!")
 
 
 ## Release
-[Cubadebate WordsCloud v1.3.2](https://github.com/oleksis/cubadebate/releases/tag/v1.3.2)
+[Cubadebate WordsCloud v1.3.3](https://github.com/oleksis/cubadebate/releases/tag/v1.3.3)
