@@ -15,17 +15,15 @@ attrs==20.3.0
 backcall==0.2.0
     # via ipython
 black==20.8b1
-    # via -r .\dev-requirements.in
+    # via -r dev-requirements.in
 bleach==3.3.0
     # via nbconvert
 cffi==1.14.5
     # via argon2-cffi
 click==7.1.2
     # via
-    #   -c .\requirements.txt
+    #   -c requirements.txt
     #   black
-colorama==0.4.4
-    # via ipython
 decorator==4.4.2
     # via ipython
 defusedxml==0.7.1
@@ -33,23 +31,27 @@ defusedxml==0.7.1
 entrypoints==0.3
     # via nbconvert
 flake8==3.9.0
-    # via -r .\dev-requirements.in
+    # via -r dev-requirements.in
 graphviz==0.16
-    # via -r .\dev-requirements.in
+    # via -r dev-requirements.in
+importlib-metadata==4.6.4
+    # via
+    #   flake8
+    #   jsonschema
 ipykernel==5.5.0
     # via notebook
+ipython==7.21.0
+    # via ipykernel
 ipython-genutils==0.2.0
     # via
     #   nbformat
     #   notebook
     #   traitlets
-ipython==7.21.0
-    # via ipykernel
 jedi==0.18.0
     # via ipython
-jinja2==2.11.3
+jinja2==3.0.1
     # via
-    #   -c .\requirements.txt
+    #   -c requirements.txt
     #   nbconvert
     #   notebook
 jsonschema==3.2.0
@@ -67,20 +69,20 @@ jupyter-core==4.7.1
     #   notebook
 jupyterlab-pygments==0.1.2
     # via nbconvert
-markupsafe==1.1.1
+markupsafe==2.0.1
     # via
-    #   -c .\requirements.txt
+    #   -c requirements.txt
     #   jinja2
 mccabe==0.6.1
     # via flake8
 mistune==0.8.4
     # via nbconvert
+mypy==0.812
+    # via -r dev-requirements.in
 mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-mypy==0.812
-    # via -r .\dev-requirements.in
 nbclient==0.5.3
     # via nbconvert
 nbconvert==6.0.7
@@ -92,11 +94,11 @@ nbformat==5.1.2
     #   notebook
 nest-asyncio==1.5.1
     # via nbclient
-notebook==6.2.0
-    # via -r .\dev-requirements.in
+notebook==6.4.1
+    # via -r dev-requirements.in
 packaging==20.9
     # via
-    #   -c .\requirements.txt
+    #   -c requirements.txt
     #   bleach
 pandocfilters==1.4.3
     # via nbconvert
@@ -104,12 +106,18 @@ parso==0.8.1
     # via jedi
 pathspec==0.8.1
     # via black
+pexpect==4.8.0
+    # via ipython
 pickleshare==0.7.5
     # via ipython
 prometheus-client==0.9.0
     # via notebook
 prompt-toolkit==3.0.17
     # via ipython
+ptyprocess==0.7.0
+    # via
+    #   pexpect
+    #   terminado
 pycodestyle==2.7.0
     # via flake8
 pycparser==2.20
@@ -123,18 +131,14 @@ pygments==2.8.1
     #   nbconvert
 pyparsing==2.4.7
     # via
-    #   -c .\requirements.txt
+    #   -c requirements.txt
     #   packaging
 pyrsistent==0.17.3
     # via jsonschema
 python-dateutil==2.8.1
     # via
-    #   -c .\requirements.txt
+    #   -c requirements.txt
     #   jupyter-client
-pywin32==301
-    # via jupyter-core
-pywinpty==0.5.7
-    # via terminado
 pyzmq==22.0.3
     # via
     #   jupyter-client
@@ -143,9 +147,9 @@ regex==2021.3.17
     # via black
 send2trash==1.5.0
     # via notebook
-six==1.15.0
+six==1.16.0
     # via
-    #   -c .\requirements.txt
+    #   -c requirements.txt
     #   argon2-cffi
     #   bleach
     #   jsonschema
@@ -179,11 +183,14 @@ typed-ast==1.4.2
 typing-extensions==3.7.4.3
     # via
     #   black
+    #   importlib-metadata
     #   mypy
 wcwidth==0.2.5
     # via prompt-toolkit
 webencodings==0.5.1
     # via bleach
+zipp==3.5.0
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
