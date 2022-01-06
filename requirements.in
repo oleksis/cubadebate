@@ -1,5 +1,5 @@
 urllib3>=1.26.5
-dask[bag]==2021.3.0
+dask[bag]>=2021.10.0
 numpy==1.20.1
 pandas==1.2.4
 pydantic>=1.7.4
