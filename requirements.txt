@@ -21,7 +21,7 @@ packaging==21.0
 pandas==1.2.4
 partd==1.2.0
 pathy==0.6.0
-pillow==8.3.2
+pillow==9.0.0
 preshed==3.0.5
 pydantic==1.7.4
 pyparsing==2.4.7
