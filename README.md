@@ -31,7 +31,6 @@ Build and Deploy on: [schedule](https://help.github.com/es/actions/reference/eve
 Como resultado se obtiene cada cierta hora en el día la imagen **[wordcloud_cubadebate.png](https://github.com/oleksis/cubadebate/blob/gh-pages/wordcloud_cubadebate.png)** que contiene la nube de palabras sobre los comentarios en [Cubadebate](http://www.cubadebate.cu). También puede descargar los resultados en formato JSON en **[comments_tfidf.json](https://github.com/oleksis/cubadebate/raw/gh-pages/comments_tfidf.json)**
 
 
-
 ## Uso
 
 ### Open in Binder
@@ -56,6 +55,11 @@ print("Spacy es_core_news_model installed.\nRestart the runtime!")
 [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/oleksis/cubadebate/blob/master/CUBADEBATE_SPACY.ipynb)
 
 
-
 ## Release
 [Cubadebate WordsCloud v1.3.4](https://github.com/oleksis/cubadebate/releases/tag/v1.3.4)
+
+
+## Update Requirements
+```bash
+pip-compile --no-header --no-annotate --upgrade
+```
