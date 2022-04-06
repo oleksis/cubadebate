@@ -51,7 +51,7 @@ ipython-genutils==0.2.0
     #   traitlets
 jedi==0.18.0
     # via ipython
-jinja2==3.0.1
+jinja2==3.0.3
     # via
     #   -c requirements.txt
     #   nbconvert
@@ -71,7 +71,7 @@ jupyter-core==4.7.1
     #   notebook
 jupyterlab-pygments==0.1.2
     # via nbconvert
-markupsafe==2.0.1
+markupsafe==2.1.1
     # via
     #   -c requirements.txt
     #   jinja2
@@ -97,10 +97,12 @@ nbformat==5.1.2
     #   nbconvert
     #   notebook
 nest-asyncio==1.5.1
-    # via nbclient
-notebook==6.4.1
+    # via
+    #   nbclient
+    #   notebook
+notebook==6.4.10
     # via -r dev-requirements.in
-packaging==21.0
+packaging==21.3
     # via
     #   -c requirements.txt
     #   bleach
@@ -137,7 +139,7 @@ pygments==2.8.1
     #   ipython
     #   jupyterlab-pygments
     #   nbconvert
-pyparsing==2.4.7
+pyparsing==3.0.7
     # via
     #   -c requirements.txt
     #   packaging
@@ -153,7 +155,7 @@ pyzmq==22.0.3
     #   notebook
 regex==2021.3.17
     # via black
-send2trash==1.5.0
+send2trash==1.8.0
     # via notebook
 six==1.16.0
     # via
